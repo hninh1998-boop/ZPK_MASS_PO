@@ -1,0 +1,33 @@
+projection;
+strict ( 2 );
+use draft;
+
+define behavior for ZC_M_PO_SUBCOM alias ManageFilePOSubComp
+{
+  //  use create;
+  use update;
+  use delete;
+
+  use action uploadExcelSubComp;
+  use action downloadFileSubComp;
+  use action downloadTemplateSubComp;
+
+  use action Activate;
+  use action Discard;
+  use action Edit;
+  use action Resume;
+  use action Prepare;
+
+  use association _DataFile { create; with draft; }
+}
+
+define behavior for ZC_D_PO_SUBCOM alias DatFilePOSubComp
+{
+  use update;
+  use delete;
+
+  use action PostConfirm;
+  use action setJob;
+
+  use association _ManageFile { with draft; }
+}

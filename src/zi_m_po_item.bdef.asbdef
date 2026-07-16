@@ -1,0 +1,102 @@
+managed implementation in class zbp_i_m_po_item unique;
+strict ( 2 );
+
+with draft;
+
+define behavior for ZI_M_PO_ITEM alias ManageFilePOItem
+persistent table ztb_m_po_item
+draft table ztb_m_po_itemd
+etag master Changedbyuser
+lock master total etag Changedbyuser
+authorization master ( global )
+early numbering
+{
+  create ( authorization : global );
+  update;
+  delete;
+  field ( readonly ) Uuid, ZCount, Countline, Createdbyuser, Createddate, Changedbyuser, Changeddate;
+  association _DataFile { with draft; create; }
+
+  draft action Activate optimized;
+  draft action Discard;
+  draft action Edit;
+  draft action Resume;
+  draft determine action Prepare;
+
+  static action uploadExcelItem parameter zabs_file_mass_po;
+
+  determination getExcelDataItem on save { field Filename; }
+  determination setStatusToOpenItem on modify { create; }
+
+  static action downloadFileItem result [1] zabs_file_mass_po;
+
+  static action downloadTemplateItem;
+
+  mapping for ztb_m_crud_poc
+    {
+      Uuid          = uuid;
+      Zcount        = zcount;
+      Status        = status;
+      Attachment    = attachment;
+      Mimetype      = mimetype;
+      Filename      = filename;
+      Countline     = countline;
+      Createdbyuser = createdbyuser;
+      Createddate   = createddate;
+      Changedbyuser = changedbyuser;
+      Changeddate   = changeddate;
+    }
+}
+
+define behavior for zi_d_po_item alias DataFilePOItem
+persistent table ztb_d_po_item
+draft table ztb_d_po_itemd
+lock dependent by _ManageFile
+authorization dependent by _ManageFile
+//etag master <field_name>
+with additional save
+{
+  update;
+  delete;
+  field ( numbering : managed, readonly ) Uuid;
+  field ( readonly ) Uuidfile, CreatedBy, CreatedAt, LocalLastChangedAt, LastChangedAt, LastChangedBy;
+  association _ManageFile { with draft; }
+
+  action ( features : instance ) PostConfirm result [1] $self;
+  action ( features : instance ) setJob result [1] $self;
+
+  side effects { action setJob affects entity _ManageFile; }
+
+  determination setStatusToUpdate on modify { field MessageType; }
+
+  mapping for ztb_d_po_item
+    {
+      Uuid                      = uuid;
+      Uuidfile                  = uuidfile;
+      MessageType               = messagetype;
+      Message                   = message;
+      Type                      = type;
+      PurchaseOrder             = purchase_order;
+      PurchaseOrderItem         = purchase_order_item;
+      AccountAssignmentCategory = account_assignment_category;
+      PurchaseOrderItemCategory = purchase_order_item_category;
+      PurchaseRequisition       = purchase_requisition;
+      PurchaseRequisitionItem   = purchase_requisition_item;
+      Material                  = material;
+      PurchaseOrderItemText     = purchase_order_item_text;
+      MaterialGroup             = material_group;
+      OrderQuantity             = order_quantity;
+      PurchaseOrderQuantityUnit = purchase_order_quantity_unit;
+      Plant                     = plant;
+      StorageLocation           = storage_location;
+      GlAccount                 = gl_account;
+      OrderId                   = order_id;
+      OrderInternalId           = order_internal_id;
+      FunctionalArea            = functional_area;
+      CreatedBy                 = created_by;
+      CreatedAt                 = created_at;
+      LastChangedBy             = last_changed_by;
+      LocalLastChangedAt        = local_last_changed_at;
+      LastChangedAt             = last_changed_at;
+    }
+}

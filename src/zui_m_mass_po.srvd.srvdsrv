@@ -1,0 +1,8 @@
+@EndUserText.label: 'Serv.Def. - Mass PO'
+define service Zui_m_mass_po {
+  expose ZC_M_PO_SUBCOM        as ManageFilePOSubComp;
+  expose ZC_D_PO_SUBCOM        as DataFilePOSubComp;
+  expose ZC_M_PO_ITEM          as ManageFilePOItem;
+  expose zc_d_po_item          as DataFilePOItem;
+  expose zi_req_sta_mass_po_vh as StatusVH;
+}

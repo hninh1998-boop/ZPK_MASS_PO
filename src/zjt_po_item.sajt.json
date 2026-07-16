@@ -1,0 +1,19 @@
+{
+  "formatVersion": "1",
+  "header": {
+    "description": "ZJT_PO_ITEM",
+    "originalLanguage": "en",
+    "abapLanguageVersion": "cloudDevelopment"
+  },
+  "generalInformation": {
+    "catalogName": "ZJC_PO_ITEM"
+  },
+  "parameters": {
+    "valueRangesParameters": [
+      {
+        "name": "HDR_ID",
+        "valueRanges": []
+      }
+    ]
+  }
+}

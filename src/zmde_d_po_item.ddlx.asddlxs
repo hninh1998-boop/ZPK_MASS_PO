@@ -1,0 +1,144 @@
+@Metadata.layer: #CORE
+@UI:{
+    headerInfo: { typeName: 'General',
+                  typeNamePlural: 'Upload Data',
+                  title: { value: 'Material' }
+    }
+}
+
+@UI.lineItem: [{criticality: 'Criticality'}]
+annotate entity zc_d_po_item with
+{
+  @UI.facet          : [
+   {
+   id                 : 'General',
+   purpose            : #STANDARD,
+   position           : 10,
+   isPartOfPreview    : true,
+   label              : 'General',
+   type               : #IDENTIFICATION_REFERENCE,
+   targetQualifier    : 'General'
+   }]
+
+  @UI.lineItem: [{ position: 10 }]
+  @UI.identification: [{ position: 10 }]
+  Uuid;
+  //  Uuidfile;
+
+  @UI.lineItem: [{ position: 20, label: 'Message Type' , criticality: 'Criticality'  },
+                 { label: 'Post Document',
+                   dataAction: 'PostConfirm',
+                   type: #FOR_ACTION,
+                   invocationGrouping: #CHANGE_SET
+                 },
+                 { label: 'Set Job',
+                   dataAction: 'setJob',
+                   type: #FOR_ACTION,
+                   invocationGrouping: #CHANGE_SET
+                 }]
+  @UI.identification: [{ position: 20 }]
+  @UI.selectionField: [{ position: 10 }]
+  @EndUserText.label: 'Message Type'
+  @UI.dataPoint : { title: 'Message Type', criticality: 'Criticality' }
+  Messagetype;
+
+  @Consumption.filter.hidden: true
+  Criticality;
+
+  @UI.adaptationHidden: true
+  OverallStatusText;
+
+  @UI.lineItem: [{ position: 30 }]
+  @UI.identification: [{ position: 30 }]
+  @EndUserText.label: 'Type'
+  Type;
+  @UI.lineItem: [{ position: 40 }]
+  @UI.identification: [{ position: 40 }]
+  @EndUserText.label: 'Purchase Order'
+  PurchaseOrder;
+  @UI.lineItem: [{ position: 50 }]
+  @UI.identification: [{ position: 50 }]
+  @EndUserText.label: 'Purchase Order Item'
+  PurchaseOrderItem;
+  @UI.lineItem: [{ position: 60 }]
+  @UI.identification: [{ position: 60 }]
+  @EndUserText.label: 'Account Assignment Category'
+  AccountAssignmentCategory;
+  @UI.lineItem: [{ position: 70 }]
+  @UI.identification: [{ position: 70 }]
+  @EndUserText.label: 'Purchase Order Item Category'
+  PurchaseOrderItemCategory;
+  @UI.lineItem: [{ position: 80 }]
+  @UI.identification: [{ position: 80 }]
+  @EndUserText.label: 'Purchase Requisition'
+  PurchaseRequisition;
+  @UI.lineItem: [{ position: 90 }]
+  @UI.identification: [{ position: 90 }]
+  @EndUserText.label: 'Purchase Requisition Item'
+  PurchaseRequisitionItem;
+  @UI.lineItem: [{ position: 100 }]
+  @UI.identification: [{ position: 100 }]
+  @EndUserText.label: 'Material'
+  Material;
+  @UI.lineItem: [{ position: 110 }]
+  @UI.identification: [{ position: 110 }]
+  @EndUserText.label: 'Purchase Order Item Text'
+  PurchaseOrderItemText;
+  @UI.lineItem: [{ position: 120 }]
+  @UI.identification: [{ position: 120 }]
+  @EndUserText.label: 'Material Group'
+  MaterialGroup;
+  @UI.lineItem: [{ position: 130 }]
+  @UI.identification: [{ position: 130 }]
+  @EndUserText.label: 'Order Quantity'
+  OrderQuantity;
+  @UI.lineItem: [{ position: 140 }]
+  @UI.identification: [{ position: 140 }]
+  @EndUserText.label: 'Purchase Order Quantity Unit'
+  PurchaseOrderQuantityUnit;
+  @UI.lineItem: [{ position: 150 }]
+  @UI.identification: [{ position: 150 }]
+  @EndUserText.label: 'Plant'
+  Plant;
+  @UI.lineItem: [{ position: 160 }]
+  @UI.identification: [{ position: 160 }]
+  @EndUserText.label: 'Storage Location'
+  StorageLocation;
+  @UI.lineItem: [{ position: 170 }]
+  @UI.identification: [{ position: 170 }]
+  @EndUserText.label: 'Gl Account'
+  GlAccount;
+  @UI.lineItem: [{ position: 180 }]
+  @UI.identification: [{ position: 180 }]
+  @EndUserText.label: 'Order ID'
+  OrderId;
+  @UI.lineItem: [{ position: 190 }]
+  @UI.identification: [{ position: 190 }]
+  @EndUserText.label: 'Order Internal ID'
+  OrderInternalId;
+  @UI.lineItem: [{ position: 200 }]
+  @UI.identification: [{ position: 200 }]
+  @EndUserText.label: 'Functional Area'
+  FunctionalArea;
+
+  @UI.lineItem: [{ position: 210 }]
+  @UI.identification: [{ position: 210 }]
+  @UI.selectionField: [{ position: 30 }]
+  CreatedBy;
+
+  @UI.lineItem: [{ position: 220 }]
+  @UI.identification: [{ position: 220 }]
+  CreatedAt;
+
+  @UI.lineItem: [{ position: 230 }]
+  @UI.identification: [{ position: 230 }]
+  @EndUserText.label: 'Message Text'
+  Message;
+
+  @UI.hidden: true
+  LastChangedBy;
+  @UI.hidden: true
+  LocalLastChangedAt;
+  @UI.hidden: true
+  LastChangedAt;
+}
