@@ -96,6 +96,15 @@ annotate entity zc_d_po_item with
   @UI.identification: [{ position: 140 }]
   @EndUserText.label: 'Purchase Order Quantity Unit'
   PurchaseOrderQuantityUnit;
+  @UI.lineItem: [{ position: 141 }]
+  @UI.identification: [{ position: 141 }]
+  @EndUserText.label: 'Đơn giá'
+  NetPriceAmount;
+  @UI.lineItem: [{ position: 142 }]
+  @UI.identification: [{ position: 142 }]
+  @EndUserText.label: 'Đơn vị tiền tệ'
+  DocumentCurrency;
+
   @UI.lineItem: [{ position: 150 }]
   @UI.identification: [{ position: 150 }]
   @EndUserText.label: 'Plant'

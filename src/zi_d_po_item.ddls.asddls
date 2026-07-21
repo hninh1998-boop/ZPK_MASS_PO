@@ -34,6 +34,9 @@ define view entity zi_d_po_item
       @Semantics.quantity.unitOfMeasure: 'PurchaseOrderQuantityUnit'
       order_quantity               as OrderQuantity,
       purchase_order_quantity_unit as PurchaseOrderQuantityUnit,
+      @Semantics.amount.currencyCode: 'DocumentCurrency'
+      net_price_amount             as NetPriceAmount,
+      document_currency            as DocumentCurrency,
       plant                        as Plant,
       storage_location             as StorageLocation,
       gl_account                   as GlAccount,

@@ -434,7 +434,13 @@ CLASS lhc_ManageFilePOSubComp IMPLEMENTATION.
                                                       ELSE ls_file-material ).
       ENDIF.
       <lfs_data_file>-QuantityInEntryUnit      = ls_file-QuantityInEntryUnit.
-      <lfs_data_file>-EntryUnit                = ls_file-EntryUnit.
+      DATA(lv_uom_e) = CONV I_UnitOfMeasure-UnitOfMeasure_E( ls_file-EntryUnit ).
+
+      SELECT SINGLE FROM I_UnitOfMeasure
+      FIELDS UnitOfMeasure
+      WHERE UnitOfMeasure_E = @lv_uom_e
+      INTO @<lfs_data_file>-EntryUnit.
+
       <lfs_data_file>-Plant                    = |{ ls_file-Plant ALPHA = IN }|.
       <lfs_data_file>-StorageLocation          = |{ ls_file-storagelocation ALPHA = IN }|.
     ENDLOOP.

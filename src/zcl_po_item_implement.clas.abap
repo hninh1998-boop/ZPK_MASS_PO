@@ -35,9 +35,9 @@ ENDCLASS.
 
 
 CLASS zcl_po_item_implement IMPLEMENTATION.
-  METHOD processing_api.
-    "Prepare data
 
+
+  METHOD processing_api.
     "Processing API
     LOOP AT ct_data ASSIGNING FIELD-SYMBOL(<lfs_data>).
       CASE <lfs_data>-type.
@@ -52,23 +52,6 @@ CLASS zcl_po_item_implement IMPLEMENTATION.
   ENDMETHOD.
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   METHOD insert.
     "Call API tạo PO Item
     insert_api_po_item( CHANGING cs_data = cs_data ).
@@ -76,37 +59,24 @@ CLASS zcl_po_item_implement IMPLEMENTATION.
     "Call API gán account assignment
     IF cs_data-order_id IS NOT INITIAL OR cs_data-order_internal_id IS NOT INITIAL
        OR cs_data-gl_account IS NOT INITIAL OR cs_data-functional_area IS NOT INITIAL.
-      insert_api_acct( CHANGING cs_data = cs_data ).
+      IF cs_data-messagetype = 'E'.
+      ELSE.
+        insert_api_acct( CHANGING cs_data = cs_data ).
+      ENDIF.
     ENDIF.
   ENDMETHOD.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
   METHOD insert_api_po_item.
     DATA: lv_endpoint TYPE string,
           lv_body     TYPE string.
+
+    DATA(lv_uom) = cs_data-purchase_order_quantity_unit.
+
+    SELECT SINGLE FROM I_UnitOfMeasure
+    FIELDS UnitOfMeasure_E
+    WHERE UnitOfMeasure = @lv_uom
+    INTO @DATA(lv_uom_e).
 
     lv_endpoint =
         '/sap/opu/odata4/sap/api_purchaseorder_2/srvd_a2x/sap/purchaseorder/0001/PurchaseOrder'
@@ -133,8 +103,10 @@ CLASS zcl_po_item_implement IMPLEMENTATION.
           && |"Material": "{ cs_data-material }",|
           && |"PurchaseOrderItemText": "{ cs_data-purchase_order_item_text }",|
           && |"MaterialGroup": "{ cs_data-material_group }",|
-          && |"OrderQuantity": "{ cs_data-order_quantity }",|
-          && |"PurchaseOrderQuantityUnit": "{ cs_data-purchase_order_quantity_unit }",|
+          && |"OrderQuantity": { cs_data-order_quantity },|
+          && |"PurchaseOrderQuantityUnit": "{ lv_uom_e }",|
+          && |"NetPriceAmount": { cs_data-net_price_amount },|
+          && |"DocumentCurrency": "{ cs_data-document_currency }"|
           && |"Plant": "{ cs_data-plant }",|
           && |"StorageLocation": "{ cs_data-storage_location }"|
           && |\}|.
@@ -151,40 +123,35 @@ CLASS zcl_po_item_implement IMPLEMENTATION.
       cs_data-messagetype = 'S'.
       cs_data-message     = 'Success'.
     ELSE.
-      "Error — parse message từ response JSON
       cs_data-messagetype = 'E'.
 
-      " Thử parse error message từ response
-      " Response format: {"error":{"message":{"value":"..."}}}
-      DATA(lv_msg) = ||.
-      FIND REGEX '"value"\s*:\s*"([^"]*)"' IN lv_result SUBMATCHES lv_msg.
-      IF sy-subrc = 0 AND lv_msg IS NOT INITIAL.
-        cs_data-message = lv_msg.
+      DATA: lv_msg  TYPE string,
+            lv_code TYPE string.
+
+      CLEAR: lv_msg, lv_code.
+
+      " 1. Thử parse dạng "message":"..." (string trực tiếp)
+      FIND REGEX '"message"\s*:\s*"([^"]*)"' IN lv_result SUBMATCHES lv_msg.
+
+      " 2. Nếu không match, thử dạng "message":{"value":"..."}
+      IF sy-subrc <> 0 OR lv_msg IS INITIAL.
+        FIND REGEX '"value"\s*:\s*"([^"]*)"' IN lv_result SUBMATCHES lv_msg.
+      ENDIF.
+
+      " 3. Lấy thêm error code nếu cần hiển thị
+      FIND REGEX '"code"\s*:\s*"([^"]*)"' IN lv_result SUBMATCHES lv_code.
+
+      IF lv_msg IS NOT INITIAL.
+        IF lv_code IS NOT INITIAL.
+          cs_data-message = |[{ lv_code }] { lv_msg }|.
+        ELSE.
+          cs_data-message = lv_msg.
+        ENDIF.
       ELSE.
         cs_data-message = |API Error HTTP { zcl_call_api_po_subcomp=>code }|.
       ENDIF.
     ENDIF.
   ENDMETHOD.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
   METHOD insert_api_acct.
@@ -218,39 +185,35 @@ CLASS zcl_po_item_implement IMPLEMENTATION.
       cs_data-messagetype = 'S'.
       cs_data-message     = 'Success'.
     ELSE.
-      "Error — parse message từ response JSON
       cs_data-messagetype = 'E'.
 
-      " Thử parse error message từ response
-      " Response format: {"error":{"message":{"value":"..."}}}
-      DATA(lv_msg) = ||.
-      FIND REGEX '"value"\s*:\s*"([^"]*)"' IN lv_result SUBMATCHES lv_msg.
-      IF sy-subrc = 0 AND lv_msg IS NOT INITIAL.
-        cs_data-message = lv_msg.
+      DATA: lv_msg  TYPE string,
+            lv_code TYPE string.
+
+      CLEAR: lv_msg, lv_code.
+
+      " 1. Thử parse dạng "message":"..." (string trực tiếp)
+      FIND REGEX '"message"\s*:\s*"([^"]*)"' IN lv_result SUBMATCHES lv_msg.
+
+      " 2. Nếu không match, thử dạng "message":{"value":"..."}
+      IF sy-subrc <> 0 OR lv_msg IS INITIAL.
+        FIND REGEX '"value"\s*:\s*"([^"]*)"' IN lv_result SUBMATCHES lv_msg.
+      ENDIF.
+
+      " 3. Lấy thêm error code nếu cần hiển thị
+      FIND REGEX '"code"\s*:\s*"([^"]*)"' IN lv_result SUBMATCHES lv_code.
+
+      IF lv_msg IS NOT INITIAL.
+        IF lv_code IS NOT INITIAL.
+          cs_data-message = |[{ lv_code }] { lv_msg }|.
+        ELSE.
+          cs_data-message = lv_msg.
+        ENDIF.
       ELSE.
         cs_data-message = |API Error HTTP { zcl_call_api_po_subcomp=>code }|.
       ENDIF.
     ENDIF.
   ENDMETHOD.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
   METHOD update.
@@ -301,11 +264,26 @@ CLASS zcl_po_item_implement IMPLEMENTATION.
     ENDIF.
 
     IF cs_data-order_quantity IS NOT INITIAL.
-      lv_body = lv_body && |"OrderQuantity": "{ cs_data-order_quantity }",|.
+      lv_body = lv_body && |"OrderQuantity": { cs_data-order_quantity },|.
     ENDIF.
 
     IF cs_data-purchase_order_quantity_unit IS NOT INITIAL.
-      lv_body = lv_body && |"PurchaseOrderQuantityUnit": "{ cs_data-purchase_order_quantity_unit }",|.
+      DATA(lv_uom) = CONV I_UnitOfMeasure-UnitOfMeasure_E( cs_data-purchase_order_quantity_unit ).
+
+      SELECT SINGLE FROM I_UnitOfMeasure
+      FIELDS UnitOfMeasure_E
+      WHERE UnitOfMeasure = @lv_uom
+      INTO @DATA(lv_uom_e).
+
+      lv_body = lv_body && |"PurchaseOrderQuantityUnit": "{ lv_uom_e }",|.
+    ENDIF.
+
+    IF cs_data-net_price_amount IS NOT INITIAL.
+      lv_body = lv_body && |"NetPriceAmount": { cs_data-net_price_amount },|.
+    ENDIF.
+
+    IF cs_data-document_currency IS NOT INITIAL.
+      lv_body = lv_body && |"DocumentCurrency": "{ cs_data-document_currency }",|.
     ENDIF.
 
     IF cs_data-plant IS NOT INITIAL.
@@ -333,51 +311,35 @@ CLASS zcl_po_item_implement IMPLEMENTATION.
       cs_data-messagetype = 'S'.
       cs_data-message     = 'Success'.
     ELSE.
-      "Error — parse message từ response JSON
       cs_data-messagetype = 'E'.
 
-      " Thử parse error message từ response
-      " Response format: {"error":{"message":{"value":"..."}}}
-      DATA(lv_msg) = ||.
-      FIND REGEX '"value"\s*:\s*"([^"]*)"' IN lv_result SUBMATCHES lv_msg.
-      IF sy-subrc = 0 AND lv_msg IS NOT INITIAL.
-        cs_data-message = lv_msg.
+      DATA: lv_msg  TYPE string,
+            lv_code TYPE string.
+
+      CLEAR: lv_msg, lv_code.
+
+      " 1. Thử parse dạng "message":"..." (string trực tiếp)
+      FIND REGEX '"message"\s*:\s*"([^"]*)"' IN lv_result SUBMATCHES lv_msg.
+
+      " 2. Nếu không match, thử dạng "message":{"value":"..."}
+      IF sy-subrc <> 0 OR lv_msg IS INITIAL.
+        FIND REGEX '"value"\s*:\s*"([^"]*)"' IN lv_result SUBMATCHES lv_msg.
+      ENDIF.
+
+      " 3. Lấy thêm error code nếu cần hiển thị
+      FIND REGEX '"code"\s*:\s*"([^"]*)"' IN lv_result SUBMATCHES lv_code.
+
+      IF lv_msg IS NOT INITIAL.
+        IF lv_code IS NOT INITIAL.
+          cs_data-message = |[{ lv_code }] { lv_msg }|.
+        ELSE.
+          cs_data-message = lv_msg.
+        ENDIF.
       ELSE.
         cs_data-message = |API Error HTTP { zcl_call_api_po_subcomp=>code }|.
       ENDIF.
     ENDIF.
   ENDMETHOD.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
   METHOD delete.
@@ -398,19 +360,33 @@ CLASS zcl_po_item_implement IMPLEMENTATION.
       cs_data-messagetype = 'S'.
       cs_data-message     = 'Success'.
     ELSE.
-      "Error — parse message từ response JSON
       cs_data-messagetype = 'E'.
 
-      " Thử parse error message từ response
-      " Response format: {"error":{"message":{"value":"..."}}}
-      DATA(lv_msg) = ||.
-      FIND REGEX '"value"\s*:\s*"([^"]*)"' IN lv_result SUBMATCHES lv_msg.
-      IF sy-subrc = 0 AND lv_msg IS NOT INITIAL.
-        cs_data-message = lv_msg.
+      DATA: lv_msg  TYPE string,
+            lv_code TYPE string.
+
+      CLEAR: lv_msg, lv_code.
+
+      " 1. Thử parse dạng "message":"..." (string trực tiếp)
+      FIND REGEX '"message"\s*:\s*"([^"]*)"' IN lv_result SUBMATCHES lv_msg.
+
+      " 2. Nếu không match, thử dạng "message":{"value":"..."}
+      IF sy-subrc <> 0 OR lv_msg IS INITIAL.
+        FIND REGEX '"value"\s*:\s*"([^"]*)"' IN lv_result SUBMATCHES lv_msg.
+      ENDIF.
+
+      " 3. Lấy thêm error code nếu cần hiển thị
+      FIND REGEX '"code"\s*:\s*"([^"]*)"' IN lv_result SUBMATCHES lv_code.
+
+      IF lv_msg IS NOT INITIAL.
+        IF lv_code IS NOT INITIAL.
+          cs_data-message = |[{ lv_code }] { lv_msg }|.
+        ELSE.
+          cs_data-message = lv_msg.
+        ENDIF.
       ELSE.
         cs_data-message = |API Error HTTP { zcl_call_api_po_subcomp=>code }|.
       ENDIF.
     ENDIF.
   ENDMETHOD.
-
 ENDCLASS.

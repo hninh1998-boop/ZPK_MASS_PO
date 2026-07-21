@@ -25,7 +25,9 @@ ENDCLASS.
 
 
 
-CLASS zcl_job_po_subcomp IMPLEMENTATION.
+CLASS ZCL_JOB_PO_SUBCOMP IMPLEMENTATION.
+
+
   METHOD if_apj_rt_exec_object~execute.
     LOOP AT it_parameters INTO DATA(ls_param).
       " ── 1. SELECT ────────────────────────────────────────────────
@@ -89,34 +91,6 @@ CLASS zcl_job_po_subcomp IMPLEMENTATION.
   ENDMETHOD.
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   METHOD if_apj_dt_exec_object~get_parameters.
     et_parameter_def = VALUE #(
      ( selname = 'HDR_ID'
@@ -127,16 +101,6 @@ CLASS zcl_job_po_subcomp IMPLEMENTATION.
        changeable_ind = abap_true )
    ).
   ENDMETHOD.
-
-
-
-
-
-
-
-
-
-
 
 
   METHOD if_oo_adt_classrun~main.

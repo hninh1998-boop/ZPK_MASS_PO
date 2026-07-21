@@ -87,6 +87,8 @@ with additional save
       MaterialGroup             = material_group;
       OrderQuantity             = order_quantity;
       PurchaseOrderQuantityUnit = purchase_order_quantity_unit;
+      NetPriceAmount            = net_price_amount;
+      DocumentCurrency          = document_currency;
       Plant                     = plant;
       StorageLocation           = storage_location;
       GlAccount                 = gl_account;

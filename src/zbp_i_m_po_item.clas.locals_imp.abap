@@ -134,6 +134,8 @@ CLASS lhc_ManageFilePOItem DEFINITION INHERITING FROM cl_abap_behavior_handler.
              MaterialGroup             TYPE string,
              OrderQuantity             TYPE string,
              PurchaseOrderQuantityUnit TYPE string,
+             NetPriceAmount            TYPE string,
+             DocumentCurrency          TYPE string,
              Plant                     TYPE string,
              StorageLocation           TYPE string,
              GLAccount                 TYPE string,
@@ -467,7 +469,17 @@ CLASS lhc_ManageFilePOItem IMPLEMENTATION.
       ENDIF.
       <lfs_data_file>-PurchaseOrderItemText     = ls_file-PurchaseOrderItemText.
       <lfs_data_file>-OrderQuantity             = ls_file-OrderQuantity.
-      <lfs_data_file>-PurchaseOrderQuantityUnit = ls_file-PurchaseOrderQuantityUnit.
+
+      DATA(lv_uom_e) = CONV I_UnitOfMeasure-UnitOfMeasure_E( ls_file-purchaseorderquantityunit ).
+
+      SELECT SINGLE FROM I_UnitOfMeasure
+      FIELDS UnitOfMeasure
+      WHERE UnitOfMeasure_E = @lv_uom_e
+      INTO @<lfs_data_file>-PurchaseOrderQuantityUnit.
+
+      <lfs_data_file>-NetPriceAmount = ls_file-netpriceamount.
+      <lfs_data_file>-DocumentCurrency = ls_file-documentcurrency.
+
       <lfs_data_file>-Plant                     = |{ ls_file-Plant ALPHA = IN }|.
       <lfs_data_file>-StorageLocation           = |{ ls_file-storagelocation ALPHA = IN }|.
       <lfs_data_file>-GlAccount                 = |{ ls_file-GlAccount ALPHA = IN }|.
@@ -492,6 +504,8 @@ CLASS lhc_ManageFilePOItem IMPLEMENTATION.
         && ls_seen_dup-PurchaseOrderItemText
         && ls_seen_dup-OrderQuantity
         && ls_seen_dup-PurchaseOrderQuantityUnit
+        && ls_seen_dup-NetPriceAmount
+        && ls_seen_dup-DocumentCurrency
         && ls_seen_dup-Plant
         && ls_seen_dup-StorageLocation
         && ls_seen_dup-GlAccount
@@ -534,6 +548,8 @@ CLASS lhc_ManageFilePOItem IMPLEMENTATION.
               MaterialGroup             = ls_data_file-MaterialGroup
               OrderQuantity             = ls_data_file-OrderQuantity
               PurchaseOrderQuantityUnit = ls_data_file-PurchaseOrderQuantityUnit
+              NetPriceAmount            = ls_data_file-NetPriceAmount
+              DocumentCurrency          = ls_data_file-DocumentCurrency
               Plant                     = ls_data_file-Plant
               StorageLocation           = ls_data_file-StorageLocation
               GlAccount                 = ls_data_file-GlAccount
@@ -574,6 +590,8 @@ CLASS lhc_ManageFilePOItem IMPLEMENTATION.
         MaterialGroup
         OrderQuantity
         PurchaseOrderQuantityUnit
+        NetPriceAmount
+        DocumentCurrency
         Plant
         StorageLocation
         GlAccount

@@ -8,7 +8,11 @@ CLASS zcl_mass_po_eml_chk DEFINITION
   PRIVATE SECTION.
 ENDCLASS.
 
-CLASS zcl_mass_po_eml_chk IMPLEMENTATION.
+
+
+CLASS ZCL_MASS_PO_EML_CHK IMPLEMENTATION.
+
+
   METHOD if_oo_adt_classrun~main.
 
     " ---- Bước 0: Check trạng thái trước update ----
