@@ -443,6 +443,16 @@ CLASS lhc_ManageFilePOSubComp IMPLEMENTATION.
 
       <lfs_data_file>-Plant                    = |{ ls_file-Plant ALPHA = IN }|.
       <lfs_data_file>-StorageLocation          = |{ ls_file-storagelocation ALPHA = IN }|.
+
+      "Validate required field
+      IF ls_file-type = 'M' OR ls_file-type = 'D'.
+        zcl_po_subcomp_implement=>validate_required(
+          EXPORTING
+            is_file      = ls_file
+          CHANGING
+            cs_data_file = <lfs_data_file>
+        ).
+      ENDIF.
     ENDLOOP.
 
     " ── 4. Xóa duplicate trong file ──────────────────────────────

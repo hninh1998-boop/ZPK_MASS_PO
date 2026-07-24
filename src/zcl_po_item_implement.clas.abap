@@ -106,7 +106,7 @@ CLASS zcl_po_item_implement IMPLEMENTATION.
           && |"OrderQuantity": { cs_data-order_quantity },|
           && |"PurchaseOrderQuantityUnit": "{ lv_uom_e }",|
           && |"NetPriceAmount": { cs_data-net_price_amount },|
-          && |"DocumentCurrency": "{ cs_data-document_currency }"|
+          && |"DocumentCurrency": "{ cs_data-document_currency }",|
           && |"Plant": "{ cs_data-plant }",|
           && |"StorageLocation": "{ cs_data-storage_location }"|
           && |\}|.

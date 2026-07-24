@@ -49,9 +49,28 @@ CLASS zcl_po_subcomp_implement DEFINITION
            END OF ty_item_del,
            tt_item_del TYPE STANDARD TABLE OF ty_item_del.
 
+    TYPES: BEGIN OF     ty_file_upload,
+             type                     TYPE string,
+             purchaseorder            TYPE string,
+             purchaseorderitem        TYPE string,
+             scheduleline             TYPE string,
+             billofmaterialitemnumber TYPE string,
+             material                 TYPE string,
+             quantityinentryunit      TYPE string,
+             entryunit                TYPE string,
+             plant                    TYPE string,
+             storagelocation          TYPE string,
+           END OF ty_file_upload.
+
     CLASS-METHODS processing_api
       CHANGING
         ct_data TYPE tt_data.
+
+    CLASS-METHODS validate_required
+      IMPORTING
+        is_file      TYPE ty_file_upload
+      CHANGING
+        cs_data_file TYPE zi_d_po_subcom.
   PROTECTED SECTION.
   PRIVATE SECTION.
     CLASS-METHODS insert
@@ -563,4 +582,94 @@ CLASS zcl_po_subcomp_implement IMPLEMENTATION.
       ENDIF.
     ENDLOOP.
   ENDMETHOD.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  METHOD validate_required.
+      DATA: lv_required_field TYPE string.
+
+      IF is_file-purchaseorder IS INITIAL.
+        lv_required_field = COND #( WHEN lv_required_field IS INITIAL
+                                    THEN 'Purchase Order'
+                                    ELSE |{ lv_required_field }, Purchase Order| ).
+      ENDIF.
+
+      IF is_file-purchaseorderitem IS INITIAL.
+        lv_required_field = COND #( WHEN lv_required_field IS INITIAL
+                                    THEN 'Purchase Order Item'
+                                    ELSE |{ lv_required_field }, Purchase Order Item| ).
+      ENDIF.
+
+      IF is_file-scheduleline IS INITIAL.
+        lv_required_field = COND #( WHEN lv_required_field IS INITIAL
+                                    THEN 'Schedule Line'
+                                    ELSE |{ lv_required_field }, Schedule Line| ).
+      ENDIF.
+
+      IF is_file-billofmaterialitemnumber IS INITIAL.
+        lv_required_field = COND #( WHEN lv_required_field IS INITIAL
+                                    THEN 'Component Item'
+                                    ELSE |{ lv_required_field }, Component Item| ).
+      ENDIF.
+
+      IF lv_required_field IS NOT INITIAL.
+        cs_data_file-messagetype = 'E'.
+        cs_data_file-message = |Chưa điền data cho field { lv_required_field }|.
+      ENDIF.
+  ENDMETHOD.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ENDCLASS.
